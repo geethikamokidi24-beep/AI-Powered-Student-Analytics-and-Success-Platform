@@ -1,0 +1,8 @@
+1. Open README.md and run the three Windows commands.
+2. Open http://127.0.0.1:5000 and sign in using the demo credentials in README.md.
+3. Open submission/DEMO_SCRIPT.md for the five-minute walkthrough.
+4. Use submission/Smart-Campus-Demo.pptx to present the approach.
+5. Review submission/REQUIREMENTS_CHECKLIST.md and SUCCESS_SCORE_NOTE.md.
+
+All included student data, historic profiles and AI training outcomes are synthetic.
+No judging result or real-world predictive accuracy is guaranteed.

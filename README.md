@@ -1,64 +1,148 @@
-# Smart Campus Analytics
+# AI-Powered Student Analytics and Success Platform
 
-Student Success platform for faculty and administrators. Flask backend, SQLite database, direct dashboard access with all Admin features available. No login is required.
+A runnable Python Flask + SQLite project with a light, colorful dashboard, role-based login, seven student data modules, AI demonstration models and support action tracking.
 
-## What is included
+## Start on Windows (PowerShell or VS Code terminal)
 
-- **Database tables:** `users`, `students`, `academic`, `attendance`, `lms`, `engagement`, `placement`, `skills`, `feedback`, `audit_log` (see `schema.sql`).
-- **Admin page:** manage staff accounts (create, disable, set password), add or delete students, view the activity log, update any data.
-- **Direct access:** view the dashboard, open and update students, export CSV, and use all Admin controls.
-- **Dashboard:** overview, student list with filters, explainable score per student, segments, method page.
-- **Public pages:** privacy policy at `/privacy`, terms and conditions at `/terms`, favicon at `static/favicon.svg`.
+Extract the RAR and open the `Student-Success-Platform` folder containing `app.py`.
+Install Python 3.10 or newer if it is not already installed. Run each command:
 
-## Run it
-
-Requires Python 3.9 or newer.
-
-```
-python -m venv .venv
-.venv\Scripts\activate          # Windows
-source .venv/bin/activate       # macOS or Linux
-pip install -r requirements.txt
-python seed.py                  # creates campus.db, prints the admin and staff passwords once
-python app.py                   # http://127.0.0.1:5000
+```powershell
+py -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe app.py
 ```
 
-`python seed.py --no-demo` creates accounts only, for real data. `python seed.py --reset` starts over. Set `ADMIN_PASSWORD` and `STAFF_PASSWORD` to choose your own (10 or more characters).
+Open http://127.0.0.1:5000 in your browser. Keep the terminal open.
+The actual database file `campus.db` is included with 300 synthetic students and ready-to-use accounts. You do NOT need to run seed.py.
+If `py` is not recognized but `python` works, use `python -m venv .venv` for the first command.
+After installation, you can double-click `RUN_WINDOWS.bat` for subsequent launches.
 
-The seeded students (IDs starting `DEMO-`) are synthetic. Delete them before using real data: open each student, or run `--reset --no-demo` on a new database.
+macOS / Linux:
 
-## Entering real data
-
-Admin adds a student under Admin, then any visitor opens the student and fills each record (academic, attendance, LMS, engagement, placement, skills, feedback). Each table keeps one current record per student. A student with too many records missing is shown as Unrated.
-
-## Score
-
-Weights: academic 30, attendance 20, placement readiness 15, LMS 12, skills 10, engagement 8, feedback 5. High risk below 52, medium below 64. Full rules are on the Method page and in `compute()` in `app.py`.
-
-## Deploying
-
-```
-pip install -r requirements.txt
-SECRET_KEY=<long random string> COOKIE_SECURE=1 gunicorn -w 2 -b 127.0.0.1:8000 app:app
+```sh
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python app.py
 ```
 
-Put it behind HTTPS (nginx or Caddy). Set `COOKIE_SECURE=1` only when serving over HTTPS. Back up `campus.db` regularly. This version has no login gate; anyone who can reach the app can use Admin controls. Account creation, enabling/disabling and password changes are preserved, but do not restrict access in this mode.
+## Demo login accounts
 
-## Before you launch
+| Access | Username | Password | Scope |
+|---|---|---|---|
+| Admin | admin | Admin@12345 | All students and account administration |
+| Faculty | faculty | Faculty@12345 | CSE department only |
+| User / Student | student | Student@12345 | DEMO-0001 only |
 
-- [ ] Point your custom domain at the server and enable HTTPS.
-- [ ] Set `SECRET_KEY` and `COOKIE_SECURE=1`.
-- [ ] Change or replace the seeded passwords.
-- [ ] Have the privacy policy and terms reviewed by someone qualified.
-- [ ] Remove demo students.
-- [ ] If you host on a site builder that adds a "Made with" badge, remove it in that platform's settings. This code adds none.
+These are public demonstration credentials. Change them from **My account** before entering real data or sharing the application. Authentication and backend authorization are enabled in this version because separate access roles were requested. The earlier no-login edition is a separate project.
 
-## Layout
+## Permissions
 
+| Feature | Admin | Faculty | User / Student |
+|---|---|---|---|
+| Dashboard, scores, AI and CSV | All students | Assigned department | Own linked record |
+| View seven data areas | All students | Assigned department | Own linked record |
+| Edit seven data areas | Yes | Assigned department | No |
+| Add/delete student | Yes | No | No |
+| Create accounts, reset passwords, enable/disable | Yes | No | No |
+| View activity log | Yes | No | No |
+| Add/complete support actions | Yes | Assigned department | Read own actions |
+| Change own password | Yes | Yes | Yes |
+
+Department and linked student are assigned when an Admin creates an account. Create the student record before creating its Student account. To change an account's role/scope, disable it and create a new account with the desired scope. Deleting a student unlinks its account; that account then has no student records to access.
+
+## Seven integrated areas
+
+- **Academic:** CGPA and backlogs.
+- **Attendance:** overall attendance percentage.
+- **LMS:** login activity score and assignment completion.
+- **Engagement:** events, clubs, hackathons and certifications.
+- **Placement:** aptitude, coding and mock interview scores.
+- **Skills:** technical and soft skills.
+- **Feedback:** student satisfaction and faculty feedback (1–5).
+
+Open **Students**, select a row, choose the record area, enter values, and Save. Data is validated and stored in SQLite. This project supports CSV imports from a roster and seven separate sources, validation previews, cleaning reports, provenance, manual data entry and CSV export. It does not automatically connect to a college ERP or LMS service.
+
+## Analytics and AI
+
+- Explainable Student Success Score: weighted normalized indicators, with missing-data reporting.
+- Academic and placement risk flags, risk groups, student filters, score distribution and department chart.
+- Two trained logistic regression models estimate academic and placement risk.
+- Student-level AI contributors and transparent rule-based support recommendations.
+- Support action plan: add an action and mark it complete; students can read their own actions.
+
+**Model limitation:** the bundled models use 4,000 synthetic examples with simulated binary outcomes. A 75/25 split is used for fitting/testing. They are a working ML demonstration, not models validated on actual institutional outcomes. Displayed percentages are demonstration estimates. Do not interpret synthetic test metrics as real-world accuracy. Missing any of the seven indices suppresses AI predictions. The weighted score and model predictions are separate outputs.
+
+`models/risk_model.json` contains coefficients, feature means, data provenance and synthetic test metrics. Inference runs locally with Python's standard library; no API key, cloud AI or scikit-learn installation is required to run the app.
+
+To reproduce training (optional):
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-training.txt
+.\.venv\Scripts\python.exe train_model.py
 ```
-app.py          routes, request protection, scoring
-schema.sql      database tables
-seed.py         first accounts and demo data
-templates/      dashboard, privacy, terms, error
-static/         css, js, favicon.svg
+
+To adapt the models for real use, collect approved historical outcomes, replace the synthetic generator, use a time-based evaluation, assess calibration and subgroup errors, and obtain faculty review. No real student training dataset is provided.
+
+## Database files
+
+- `campus.db`: populated SQLite database; ready to use.
+- `schema.sql`: relational table definitions.
+- `database_dump.sql`: portable schema and demo data export.
+- `seed.py`: optional reset and demo initialization tool.
+
+All seven domain tables link to `students.id`. Users link to student IDs or a faculty department. `interventions` links support actions to students. `audit_log` records who changed or exported data.
+
+Back up `campus.db` while the app is stopped. Keep it local; do not commit databases containing personal data to a public GitHub repository. Do not replace this database with the earlier project database: the role schema differs and there is no automatic migration.
+
+Destructive reset commands (optional, erase current data):
+
+```powershell
+.\.venv\Scripts\python.exe seed.py --reset
 ```
+
+For an empty student database with Admin and Faculty accounts only:
+
+```powershell
+.\.venv\Scripts\python.exe seed.py --reset --no-demo
+```
+
+## Verification
+
+```powershell
+.\.venv\Scripts\python.exe -m unittest -v test_access test_challenge
+```
+
+Tests use a temporary copy of the included demo database and cover role scopes, unauthorized access, all seven updates, student creation/deletion, CSV scope, support actions, CSRF, password reset/session invalidation, disabled accounts and model missing-data behavior. Run them against the unmodified demo database.
+
+## Deployment and configuration
+
+The supplied project is ready for local use and a persistent Python server. It writes SQLite and a local session key file. It is NOT a drop-in Vercel deployment: use persistent database storage and adapt the database layer for a serverless deployment first.
+
+For a persistent server after installing requirements:
+
+```sh
+waitress-serve --host=127.0.0.1 --port=8000 app:app
+```
+
+Use HTTPS through a reverse proxy. Set SECRET_KEY to a stable secret and COOKIE_SECURE=1 when using HTTPS. DATABASE_PATH can set an alternate persistent database location; PORT controls local `python app.py` only. Login throttling is per process; a public deployment needs a shared rate limiter. CSRF tokens, parameterized queries, password hashing and role checks are included.
+
+## Project files
+
+- app.py: Flask routes, authentication, permissions, scoring and APIs.
+- ai_engine.py: local ML inference and support recommendations.
+- train_model.py: reproducible synthetic training.
+- models/risk_model.json: actual fitted model parameters.
+- templates/: login and main pages.
+- static/: light theme, JavaScript dashboard and favicon.
+- test_access.py: automated backend checks.
+- RUN_WINDOWS.bat: launcher after installing dependencies.
+
+
+## Challenge submission additions
+
+Open Data import for CSV integration and quality reports. Start with sample_sources/students.csv, then import the seven module files. An empty module row preserves existing data; a partly empty module row is rejected. The first occurrence of a duplicate ID takes precedence, even if that row is invalid, so correct duplicates before applying. IDs are case-sensitive. Valid accepted rows commit together, while rejected/skipped rows remain unchanged. Percent suffixes are accepted only for 0–100 fields. Roster imports may update a student's department/year and therefore faculty access.
+
+Trends shows monthly saved snapshots and a student profile shows individual history. All preloaded history is explicitly simulated. Faculty snapshots cover only their department; student accounts cannot create snapshots. Snapshots use each student's current access scope and disappear if the student is deleted.
+
+The submission/ folder contains the score note, requirement coverage matrix, five-minute demo script, synthetic-data insights and presentation. No evaluation outcome or marks are guaranteed.

@@ -2,10 +2,10 @@
 {% block bodyattrs %}data-role="{{ user.role }}" data-csrf="{{ csrf }}"{% endblock %}
 {% block topright %}
 <div class="who"><span>{{ user.full_name }} ({{ user.role }})</span>
-</div>
+<form method="post" action="/logout"><input type="hidden" name="csrf_token" value="{{ csrf }}"><button class="g" type="submit">Sign out</button></form></div>
 {% endblock %}
 {% block nav %}
-<nav id="nav"><a href="#/">Overview</a><a href="#/students">Students</a><a href="#/segments">Segments</a><a href="#/method">Method</a>{% if user.role == 'admin' %}<a href="#/admin">Admin</a>{% endif %}</nav>
+<nav id="nav"><a href="#/">Overview</a><a href="#/students">Students</a><a href="#/segments">Segments</a><a href="#/trends">Trends</a>{% if user.role != 'student' %}<a href="#/integration">Data import</a>{% endif %}<a href="#/method">Method</a><a href="#/account">My account</a>{% if user.role == 'admin' %}<a href="#/admin">Admin</a>{% endif %}</nav>
 {% endblock %}
 {% block content %}<p class="mu">Loading</p>{% endblock %}
 {% block scripts %}<script src="{{ url_for('static', filename='js/app.js') }}"></script>{% endblock %}

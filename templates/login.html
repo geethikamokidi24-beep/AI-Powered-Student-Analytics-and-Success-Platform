@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Sign in | Smart Campus Analytics{% endblock %}
+{% block content %}<p class="mu">Academic · Attendance · LMS · Engagement · Placement · Skills · Feedback</p>
+<div class="card login">
+<h1>Sign in</h1>
+<p class="mu">For administrators and faculty. Accounts are created by an administrator.</p>
+{% if error %}<div class="err" role="alert">{{ error }}</div>{% endif %}
+<form method="post" action="/login">
+<input type="hidden" name="csrf_token" value="{{ csrf }}">
+<label for="username">Username</label>
+<input id="username" name="username" autocomplete="username" required autofocus>
+<label for="password">Password</label>
+<input id="password" name="password" type="password" autocomplete="current-password" required>
+<button type="submit">Sign in</button>
+</form>
+</div>
+{% endblock %}

@@ -1,0 +1,99 @@
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY,
+  username TEXT NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  full_name TEXT NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('admin','faculty','student')),
+  department TEXT,
+  student_id TEXT REFERENCES students(id) ON DELETE SET NULL,
+  active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0,1)),
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS students (
+  id TEXT PRIMARY KEY,
+  department TEXT NOT NULL,
+  year INTEGER NOT NULL CHECK (year BETWEEN 1 AND 4),
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS academic (
+  student_id TEXT PRIMARY KEY REFERENCES students(id) ON DELETE CASCADE,
+  cgpa REAL NOT NULL CHECK (cgpa BETWEEN 0 AND 10),
+  backlogs INTEGER NOT NULL DEFAULT 0 CHECK (backlogs >= 0),
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS attendance (
+  student_id TEXT PRIMARY KEY REFERENCES students(id) ON DELETE CASCADE,
+  overall_pct REAL NOT NULL CHECK (overall_pct BETWEEN 0 AND 100),
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS lms (
+  student_id TEXT PRIMARY KEY REFERENCES students(id) ON DELETE CASCADE,
+  login_score REAL NOT NULL CHECK (login_score BETWEEN 0 AND 100),
+  assignment_pct REAL NOT NULL CHECK (assignment_pct BETWEEN 0 AND 100),
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS engagement (
+  student_id TEXT PRIMARY KEY REFERENCES students(id) ON DELETE CASCADE,
+  events INTEGER NOT NULL CHECK (events >= 0),
+  clubs INTEGER NOT NULL CHECK (clubs >= 0),
+  hackathons INTEGER NOT NULL CHECK (hackathons >= 0),
+  certifications INTEGER NOT NULL CHECK (certifications >= 0),
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS placement (
+  student_id TEXT PRIMARY KEY REFERENCES students(id) ON DELETE CASCADE,
+  aptitude REAL NOT NULL CHECK (aptitude BETWEEN 0 AND 100),
+  coding REAL NOT NULL CHECK (coding BETWEEN 0 AND 100),
+  mock_interview REAL NOT NULL CHECK (mock_interview BETWEEN 0 AND 100),
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS skills (
+  student_id TEXT PRIMARY KEY REFERENCES students(id) ON DELETE CASCADE,
+  technical REAL NOT NULL CHECK (technical BETWEEN 0 AND 100),
+  soft REAL NOT NULL CHECK (soft BETWEEN 0 AND 100),
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS feedback (
+  student_id TEXT PRIMARY KEY REFERENCES students(id) ON DELETE CASCADE,
+  satisfaction REAL NOT NULL CHECK (satisfaction BETWEEN 1 AND 5),
+  faculty REAL NOT NULL CHECK (faculty BETWEEN 1 AND 5),
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS audit_log (
+  id INTEGER PRIMARY KEY,
+  at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  username TEXT NOT NULL,
+  action TEXT NOT NULL,
+  detail TEXT NOT NULL DEFAULT ''
+);
+
+CREATE TABLE IF NOT EXISTS interventions (
+ id INTEGER PRIMARY KEY,
+ student_id TEXT NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+ action TEXT NOT NULL,
+ status TEXT NOT NULL DEFAULT 'Open' CHECK(status IN ('Open','In progress','Completed')),
+ created_by TEXT NOT NULL,
+ created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS import_runs (
+ id INTEGER PRIMARY KEY, source TEXT NOT NULL, filename TEXT NOT NULL,
+ username TEXT NOT NULL, accepted INTEGER NOT NULL, rejected INTEGER NOT NULL,
+ skipped INTEGER NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS snapshots (
+ student_id TEXT NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+ period TEXT NOT NULL, payload TEXT NOT NULL, source TEXT NOT NULL,
+ PRIMARY KEY(student_id,period)
+);
