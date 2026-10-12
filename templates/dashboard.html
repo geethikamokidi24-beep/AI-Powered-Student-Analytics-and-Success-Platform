@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block bodyattrs %}data-role="{{ user.role }}" data-csrf="{{ csrf }}"{% endblock %}
+{% block topright %}
+<div class="who"><span>{{ user.full_name }} ({{ user.role }})</span>
+</div>
+{% endblock %}
+{% block nav %}
+<nav id="nav"><a href="#/">Overview</a><a href="#/students">Students</a><a href="#/segments">Segments</a><a href="#/method">Method</a>{% if user.role == 'admin' %}<a href="#/admin">Admin</a>{% endif %}</nav>
+{% endblock %}
+{% block content %}<p class="mu">Loading</p>{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/app.js') }}"></script>{% endblock %}

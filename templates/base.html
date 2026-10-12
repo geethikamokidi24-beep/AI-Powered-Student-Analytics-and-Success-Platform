@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{% block title %}Smart Campus Analytics{% endblock %}</title>
+<link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body {% block bodyattrs %}{% endblock %}>
+<header><div class="w">
+<div class="top"><a class="brand" href="/"><img src="{{ url_for('static', filename='favicon.svg') }}" alt="" width="28" height="28">Smart Campus Analytics</a>
+{% block topright %}{% endblock %}</div>
+{% block nav %}{% endblock %}
+</div></header>
+<main><div class="w" id="app">{% block content %}{% endblock %}</div></main>
+<footer><div class="w"><a href="/privacy">Privacy policy</a><a href="/terms">Terms and conditions</a>
+<p>CSE major project, St Mary's Engineering College, 2026-2027.</p></div></footer>
+{% block scripts %}{% endblock %}
+</body>
+</html>
